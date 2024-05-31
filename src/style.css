@@ -1,4 +1,8 @@
-
+*{
+    padding: 0;
+    margin: 0;
+    
+}
 @font-face 
 {
     font-family: 'lulo_cleanoutline_bold';
@@ -24,7 +28,7 @@ body
     background-color: #201f24;
     justify-content: center;
     align-items: center;
-    background-image: url("https://i.ibb.co/CJj5Qtp/snowy-mountain-scenery-minimalist-digital-art-4k-wallpaper-uhdpaper-com-821-3-a.jpg");
+    background-image: url("https://i.ibb.co/xMMC59G/abstract-samsung-background-digital-art-4k-wallpaper-uhdpaper-com-126-0-h.jpg");
     object-fit: contain;
     background-attachment: fixed;
     background-size: cover;
@@ -80,15 +84,35 @@ canvas, img
 
 
 .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     position: fixed;
     left: 0;
     bottom: 0;
     width: 100%;
     background-color: rgba(34, 34, 34, 0.486);
     color: white;
-    text-align: center;
-    /* font-family: 'Dancing Script', cursive; */
- }
+    padding: 10px; /* Optional: Add some padding for better visual spacing */
+}
+
+.footer p {
+    margin: 0; /* Remove default margin */
+}
+
+.footer-left {
+    flex: 1; /* Takes as much space as possible */
+    text-align: center; /* Aligns the text to the center */
+}
+
+.footer-right {
+    padding-right: 20px;
+    white-space: nowrap; /* Prevents text from wrapping */
+    overflow: hidden; /* Hides any overflow text */
+    text-overflow: ellipsis; /* Displays an ellipsis (...) to indicate text overflow */
+}
+
+
 
 
 

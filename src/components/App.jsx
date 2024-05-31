@@ -48,10 +48,34 @@ export default function App() {
       <div className='main'>
       {option === 'home' && <Button style={{margin: '1rem'}} name='encode' onClick={handleClick} variant="contained">Encode</Button>}
       {option === 'home' && <Button style={{margin: '1rem'}} name='decode' onClick={handleClick} variant="contained">Decode</Button>}
-      {option === 'encode' && <TextField  variant="filled" multiline type="text" id="secret" name="secret" placeholder="Enter secret message"  
-      label="Secret Message" 
-      // color="Secondary"
-      />}
+      {option === 'encode' && (
+  <TextField
+    variant="filled"
+    multiline
+    type="text"
+    id="secret"
+    name="secret"
+    placeholder="Enter secret message"
+    label="Secret Message"
+    InputProps={{
+      style: {
+        color: 'white', // White text color
+        backgroundColor: 'rgba(255, 255, 255, 0.1)', // Slightly transparent background
+        backdropFilter: 'blur(5px)', // Background blur
+      },
+    }}
+    InputLabelProps={{
+      style: {
+        color: 'white', // White label color
+      },
+    }}
+  />
+)}
+
+
+
+
+
       {option !== 'home' && <UploadButton />}
       {option === 'encode' && <Button style={{margin: '1rem'}} onClick={encode} variant="contained">Encode</Button>}
       {option === 'decode' && <Button style={{margin: '1rem'}} onClick={decode} variant="contained">Decode</Button>}
@@ -62,9 +86,11 @@ export default function App() {
       </div>
       
    
-      <div class="footer">
-  <p> ©{new Date().getFullYear()} Stegio All rights reserved.</p>
+<div className="footer">
+  <p className="footer-left">©{new Date().getFullYear()} Stegio All rights reserved.</p>
+  <p className="footer-right">Y0DA</p>
 </div>
+
     </div>
   );
 };

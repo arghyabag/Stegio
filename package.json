@@ -34,5 +34,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "description": "This project implements an image steganography tool that allows users to hide secret messages within images using the Least Significant Bit (LSB) method. The tool consists of functionalities for encoding a message into an image and decoding a hidden message from an image.",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC"
 }
