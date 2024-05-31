@@ -4,9 +4,12 @@ import UploadButton from './UploadButton';
 import { encode, decode } from '../steganography';
 import { TypeAnimation } from 'react-type-animation';
 import { FaGithub } from "react-icons/fa";
+import downloadjs from 'downloadjs';
+import html2canvas from 'html2canvas';
+
 
 export default function App() {
-
+  
   const [option, setOption] = useState('home');
 
   function handleClick(event) {
@@ -20,7 +23,17 @@ export default function App() {
     } else if (name === 'decode') {
       setOption('decode');
     }
+
   }
+  
+  const handleCaptureClick = async () => {
+    const canvas = await html2canvas(document.getElementById("canvas"));
+    const dataURL = canvas.toDataURL('image/png');
+    downloadjs(dataURL, 'download.png', 'image/png');
+  };
+
+
+
 
   return (
     <div className='content'>
@@ -84,6 +97,9 @@ export default function App() {
       <img id="encoded-image" alt='encoded output'></img>
       
       <canvas id="canvas"></canvas>
+      {/* {imgElement !== null && <Button id='download' style={{display:'none'}} onClick={handleCaptureClick} variant="contained">Download</Button> } */}
+      <Button id='download' style={{margin: '1rem'}} onClick={handleCaptureClick} variant="contained">Download</Button>
+
       </div>
       
    
