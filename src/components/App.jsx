@@ -3,6 +3,7 @@ import { Button, TextField } from '@material-ui/core';
 import UploadButton from './UploadButton';
 import { encode, decode } from '../steganography';
 import { TypeAnimation } from 'react-type-animation';
+import { FaGithub } from "react-icons/fa";
 
 export default function App() {
 
@@ -88,7 +89,7 @@ export default function App() {
    
 <div className="footer">
   <p className="footer-left">©{new Date().getFullYear()} Stegio All rights reserved.</p>
-  <p className="footer-right">Y0DA</p>
+  <a href='https://github.com/arghyabag'><p className="footer-right"><FaGithub /> ARGHYA</p></a>
 </div>
 
     </div>
