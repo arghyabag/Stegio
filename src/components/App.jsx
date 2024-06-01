@@ -4,7 +4,7 @@ import UploadButton from './UploadButton';
 import { encode, decode } from '../steganography';
 import { TypeAnimation } from 'react-type-animation';
 import { FaGithub } from "react-icons/fa";
-import downloadjs from 'downloadjs';
+// import downloadjs from 'downloadjs';
 import html2canvas from 'html2canvas';
 
 
@@ -33,9 +33,15 @@ export default function App() {
 
   const handleCaptureClick = async () => {
     const canvas = await html2canvas(document.getElementById("canvas"));
-    const dataURL = canvas.toDataURL('image/png');
-    downloadjs(dataURL, 'download.png', 'image/png');
-  };
+    const dataURL = canvas.toDataURL("image/png");
+
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = 'download.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
 
   return (
     <div className='content'>
