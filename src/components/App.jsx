@@ -101,7 +101,7 @@ export default function App() {
       </div>
       
       <div className="footer">
-        <p className="footer-left">Â©{new Date().getFullYear()} Stegio All rights reserved.</p>
+        <p className="footer-left">©{new Date().getFullYear()} Stegio All rights reserved.</p>
         <a href='https://github.com/arghyabag'><p className="footer-right"><FaGithub /> ARGHYA</p></a>
       </div>
     </div>
