@@ -1,209 +1,213 @@
-let isImageUpload = false;
-let securityKey = null;
+const texts = [
+  "Encrypting", "Decrypting", "Hiding text" , "Inside a image"
+];
+const delay = 1000; 
+const typingSpeed = 100;
+let index = 0;
 
-// Loads input image to the Canvas for encoding or decoding
-function loadImage(e) {
-  let reader = new FileReader();
-  reader.onload = (event) => {
-    let regex = /data:image/;
-    if (regex.test(reader.result)) {      //Checks if the uploaded file is an image 
-      isImageUpload = true;
-      let dataUrl = event.target.result;
-      let img = new Image();
-      img.onload = () => {
-        let ctx = document.getElementById('canvas').getContext('2d');
-        ctx.canvas.width = img.width;
-        ctx.canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
+function typeText() {
+  if (index >= texts.length) {
+    index = 0; 
+  }
+  
+  const currentText = texts[index];
+  let textIndex = 0;
+  
+  const typingInterval = setInterval(() => {
+    document.getElementById('typing-text').textContent = currentText.slice(0, textIndex);
+    textIndex++;
+    
+    if (textIndex > currentText.length) {
+      clearInterval(typingInterval);
+      index++;
+      setTimeout(typeText, delay);
+    }
+  }, typingSpeed);
+}
+
+
+typeText();
+
+
+
+var preloader = document.getElementById("Loading");
+function myfung() {
+  preloader.style.display = "none";
+}
+
+
+
+document.getElementById("currentYear").innerText = new Date().getFullYear();
+
+
+function updateDateTime() {
+  const now = new Date();
+
+ 
+  const day = String(now.getDate()).padStart(2, "0");
+  const month = String(now.getMonth() + 1).padStart(2, "0"); // Month is zero-based
+  const year = now.getFullYear();
+
+  const date = `${day}/${month}/${year}`;
+
+
+  const time = now.toLocaleTimeString();
+
+
+  const currentDateTime = `${date} ${time}`;
+  document.getElementById("currentDateTime").textContent = currentDateTime;
+}
+
+
+updateDateTime();
+
+
+setInterval(updateDateTime, 1000);
+
+function showEncryptForm() {
+  document.getElementById("encrypt-form").style.display = "block";
+  document.getElementById("decrypt-form").style.display = "none";
+  document.getElementById("output-message").innerHTML = "";
+  document.getElementById("encrypt-btn").classList.add("active");
+  document.getElementById("decrypt-btn").classList.remove("active");
+}
+
+function showDecryptForm() {
+  document.getElementById("decrypt-form").style.display = "block";
+  document.getElementById("encrypt-form").style.display = "none";
+  document.getElementById("output-message").innerHTML = "";
+  document.getElementById("decrypt-btn").classList.add("active");
+  document.getElementById("encrypt-btn").classList.remove("active");
+}
+function hideText() {
+  const coverImageFile = document.getElementById("cover-image").files[0];
+  const hiddenText = document.getElementById("hidden-text").value;
+  const secretKey = document.getElementById("secret-key").value;
+
+  if (!coverImageFile || !hiddenText || !secretKey) {
+    alert("Please provide a cover image, text to hide, and a secret key.");
+    return;
+  }
+
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  const reader = new FileReader();
+
+  reader.onload = function (event) {
+    const img = new Image();
+    img.onload = function () {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+
+      let binaryText = textToBinary(hiddenText);
+      binaryText = xorEncryptDecrypt(binaryText, secretKey);
+      binaryText += "00000000";
+
+      if (binaryText.length > data.length * 4) {
+        alert("Text is too long to hide in this image.");
+        return;
       }
-      img.src = dataUrl;
-    } else {
-      document.getElementById('upload-photo').value = '';
-      alert("Please upload an image!");
-    }
+
+      for (let i = 0; i < binaryText.length; i++) {
+        const pixelIndex = i * 4;
+        data[pixelIndex] = (data[pixelIndex] & 0xfe) | parseInt(binaryText[i]);
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+
+      const encryptedImg = canvas.toDataURL("image/png");
+      downloadImage(encryptedImg, "encrypted_img.png");
+
+      document.getElementById("output-message").innerHTML =
+        "Text successfully hidden in the image.";
+    };
+    img.src = event.target.result;
   };
-  reader.readAsDataURL(e.target.files[0]);
-};
 
-// Prompt user to enter security key for encoding
-function enterSecurityKeyForEncoding() {
-  securityKey = prompt("Enter security key for encoding:");
+  reader.readAsDataURL(coverImageFile);
 }
 
-// Prompt user to enter security key for decoding
-function enterSecurityKeyForDecoding() {
-  securityKey = prompt("Enter security key for decoding:");
-}
+function revealText() {
+  const hiddenImageFile = document.getElementById("hidden-image").files[0];
+  const revealKey = document.getElementById("reveal-key").value;
 
-// Encodes the secret message on the original and displays the encoded image
-function encode() {
-  enterSecurityKeyForEncoding(); // Prompt user for security key
-
-  if (isImageUpload) {      //Checks if an image is uploaded  
-    let message = document.getElementById('secret').value;
-    if (message.length > 1000) {
-      alert("The message is too big to encode");
-    } else {
-      document.getElementById('encoded-image').style.display = 'block';
-      document.getElementById('secret').value = '';
-      let output = document.getElementById('encoded-image');
-      let canvas = document.getElementById('canvas');
-      let ctx = canvas.getContext('2d');
-      let imgData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
-      encodeMessage(imgData.data, message, securityKey); // Pass security key to encodeMessage
-      ctx.putImageData(imgData, 0, 0);
-      alert('Image encoded!\n Save below image for further use!');
-      output.src = canvas.toDataURL();
-    }
-  } else {
-    document.getElementById('upload-photo').value = '';
-    alert("Please upload an image!");
-  }
-};
-
-// Decodes the secret message from the canvas and alerts it to the user
-function decode() {
-  enterSecurityKeyForDecoding(); // Prompt user for security key
-
-  if (securityKey === null) {
-    alert("Please provide a security key for decoding.");
+  if (!hiddenImageFile || !revealKey) {
+    alert("Please provide an image with hidden text and the secret key.");
     return;
   }
 
-  let ctx = document.getElementById('canvas').getContext('2d');
-  let imgData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
-  let message = decodeMessage(imgData.data, securityKey); // Pass security key to decodeMessage
-  if (message === null) {
-    alert("Invalid security key or no message found. Unable to decode.");
-    return;
-  }
-  alert("The decoded message is:\n" + message);
-};
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  const reader = new FileReader();
 
-// Encodes message using LSB method
-function encodeMessage(colors, message, key) {
-  let messageBits = getBitsFromNumber(message.length);
-  messageBits = messageBits.concat(getMessageBits(message));
-  let history = [];
-  let pos = 0;
-  while (pos < messageBits.length) {
-    let loc = getNextLocation(history, colors.length);
-    colors[loc] = setBit(colors[loc], 0, messageBits[pos]);
-    while ((loc + 1) % 4 !== 0) {
-      loc++;
-    }
-    colors[loc] = 255;
-    pos++;
-  }
-};
+  reader.onload = function (event) {
+    const img = new Image();
+    img.onload = function () {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
 
-// Converts a string message into an array of bits representing the message in 2-byte character codes
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
 
-function getMessageBits(message) {
-  let messageBits = [];
+      let binaryText = "";
 
-  // Iterate through each character in the message
-  for (let i = 0; i < message.length; i++) {
-    // Get the character code for the current character
-    let code = message.charCodeAt(i);
+      for (let i = 0; i < data.length; i += 4) {
+        binaryText += data[i] & 1;
+        if (binaryText.length % 8 === 0 && binaryText.endsWith("00000000")) {
+          break;
+        }
+      }
 
-    // Convert the character code into an array of bits
-    let bits = getBitsFromNumber(code);
+      binaryText = binaryText.slice(0, -8);
+      const decryptedBinaryText = xorEncryptDecrypt(binaryText, revealKey);
+      const revealedText = binaryToText(decryptedBinaryText);
 
-    // Append the bits to the messageBits array
-    messageBits = messageBits.concat(bits);
-  }
+      // document.getElementById(
+      //   "output-message"
+      // ).innerHTML = `Encrypted text: ${revealedText}`;
 
-  return messageBits;
+      alert(`Encrypted text: ${revealedText}`);
+
+    };
+    img.src = event.target.result;
+  };
+
+  reader.readAsDataURL(hiddenImageFile);
 }
 
-
-// Decodes message from the image
-function decodeMessage(colors, key) {
-  let history = [];
-  let decodedMessage = '';
-
-  // Step 1: Retrieve and decrypt message size
-  let encryptedMessageSize = getNumberFromBits(colors, history);
-  let messageSize = decryptNumber(encryptedMessageSize, key);
-
-  // Step 2: Validate message size
-  if ((messageSize + 1) * 16 > colors.length * 0.75 || messageSize <= 0) {
-    return ''; // Invalid size or too large
-  }
-
-  // Step 3: Retrieve and decrypt each character in the message
-  for (let i = 0; i < messageSize; i++) {
-    let encryptedCode = getNumberFromBits(colors, history);
-    let code = decryptNumber(encryptedCode, key);
-    decodedMessage += String.fromCharCode(code);
-  }
-
-  return decodedMessage; // Return the decoded message
+function textToBinary(text) {
+  return text
+    .split("")
+    .map((char) => char.charCodeAt(0).toString(2).padStart(8, "0"))
+    .join("");
 }
 
-// Decrypt a 2-byte number using the security key
-function decryptNumber(encryptedNumber, key) {
-  // Use a PRNG seeded with the key to generate a pseudo-random sequence for decryption
-  let prng = new PRNG(key);
-  let mask = prng.next() & 0xFFFF; // Generate a 16-bit mask
-  return encryptedNumber ^ mask;
+function binaryToText(binary) {
+  return binary
+    .match(/.{8}/g)
+    .map((byte) => String.fromCharCode(parseInt(byte, 2)))
+    .join("");
 }
 
-// A simple PRNG implementation (e.g., a linear congruential generator)
-class PRNG {
-  constructor(seed) {
-    this.seed = seed;
-  }
-
-  next() {
-    // Linear congruential generator parameters
-    const a = 1664525;
-    const c = 1013904223;
-    this.seed = (a * this.seed + c) % 0x100000000;
-    return this.seed;
-  }
+function xorEncryptDecrypt(binaryText, key) {
+  const keyBinary = textToBinary(key);
+  const keyLength = keyBinary.length;
+  return binaryText
+    .split("")
+    .map((bit, index) => bit ^ keyBinary[index % keyLength])
+    .join("");
 }
 
-function getBit(number, location) {
-  return ((number >> location) & 1);
+function downloadImage(dataurl, filename) {
+  const a = document.createElement("a");
+  a.href = dataurl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
-
-function setBit(number, location, bit) {
-  return (number & ~(1 << location)) | (bit << location);
-}
-
-function getBitsFromNumber(number) {
-  let bits = [];
-  for (let i = 0; i < 16; i++) {
-    bits.push(getBit(number, i));
-  }
-  return bits;
-}
-
-function getNumberFromBits(bytes, history) {
-  let number = 0, pos = 0;
-  while (pos < 16) {
-    let loc = getNextLocation(history, bytes.length);
-    let bit = getBit(bytes[loc], 0);
-    number = setBit(number, pos, bit);
-    pos++;
-  }
-  return number;
-}
-
-function getNextLocation(history, total) {
-  let loc = 0;
-  while (true) {
-    if (history.indexOf(loc) >= 0) {
-      loc++;
-    } else if ((loc + 1) % 4 === 0) {
-      loc++;
-    } else {
-      history.push(loc);
-      return loc;
-    }
-  }
-}
-
-export { decode, encode, loadImage };
