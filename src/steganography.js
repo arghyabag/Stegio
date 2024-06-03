@@ -1,5 +1,5 @@
 const texts = [
-  "Encode", "Decode", "Hide" , "Inside" , "Image"
+  "Encrypt", "Decrypt", "Hide Data" , "Inside ","a image"
 ];
 const delay = 1000; 
 const typingSpeed = 100;
